@@ -1,0 +1,33 @@
+Homepage:
+---------
+
+https://cx-oracle.readthedocs.io/en/latest/index.html
+
+To install cx_Oracle:
+---------------------
+sudo python3 -m pip install cx_Oracle --upgrade
+
+Configuration:
+-------------
+
+You need to configure the following in the export_oracle.py script:
+
+# Where do we want to save the files?
+path_to_save = "/tmp/ora_export"
+
+# Insert the path to the Oracle instance client
+cx_Oracle.init_oracle_client(lib_dir='<path_to_oracle_instant_client>',
+                             config_dir=None, error_url=None, driver_name=None)
+
+# Define all the schemas you want to fetch from a given database
+
+# Field 1: Oracle user name
+# Field 2: Oracle Password
+# Field 3: Oracle Server
+# Field 4: Port number
+# Field 5: Oracle Service name
+
+schemas = [['user1', 'xxx', '192.168.0.199', 1521, 'COPS'],
+           ['user2', 'xxx', '192.168.0.199', 1521, 'COPS'],
+           ['user3', 'xxx', '192.168.0.199', 1521, 'COPS'],
+           ]
