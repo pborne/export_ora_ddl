@@ -87,15 +87,15 @@ ora_queries = [['tables', 'tab',
                    and   owner = """]
                ]
 
-grant_queries = [['grants', 'sql',
+grant_queries = [['grants', 'grant',
                   """select username, 'system', dbms_metadata.get_granted_ddl( 'SYSTEM_GRANT', username ) \
                      from all_users \
                      where username = """],
-                 ['grants', 'sql',
+                 ['grants', 'grant',
                   """select username, 'object', dbms_metadata.get_granted_ddl( 'OBJECT_GRANT', username ) \
                      from all_users \
                      where username = """],
-                 ['grants', 'sql',
+                 ['grants', 'grant',
                   """select username, 'role', dbms_metadata.get_granted_ddl( 'ROLE_GRANT', username ) \
                      from all_users \
                      where username = """]
@@ -110,15 +110,16 @@ for schema in schemas:
     dsn = cx_Oracle.makedsn(server, port, db)
 
     connection = cx_Oracle.connect(user, pwd, dsn)
-    print("Connected to: ", dsn)
+    print("Connected to:", dsn)
     cursor = connection.cursor()
 
     # Grants
+    counter = 0
     for ora_query in grant_queries:
         object_type = ora_query[0]
         file_extension = ora_query[1]
         sql_query = ora_query[2] + "'" + str.upper(user) + "'"
-        print(sql_query)
+        # print(sql_query)
 
         for result in cursor.execute(sql_query):
             file_path = path_to_save + "/" + db + "/schema=" + user + "/" + object_type + "/" + result[1] \
@@ -136,15 +137,19 @@ for schema in schemas:
             if not new_ddl.endswith(";"):  # Do we need a final ';'?
                 file_handle.write(";\n")
 
+            counter += 1
             file_handle.close()
+
+    print("Retrieved %d grants for schema %s" % (counter, user))
 
     # Tables, Views, PL/SQL...
     for ora_query in ora_queries:
         object_type = ora_query[0]
         file_extension = ora_query[1]
         sql_query = ora_query[2] + "'" + str.upper(user) + "'"
-        print(sql_query)
+        # print(sql_query)
 
+        counter = 0
         for result in cursor.execute(sql_query):
             file_path = path_to_save + "/" + db + "/schema=" + user + "/" + object_type + "/" + result[1] \
                         + "." + file_extension
@@ -157,7 +162,10 @@ for schema in schemas:
             file_handle.write(retrieved_ddl)
             if not retrieved_ddl.endswith(";"):
                 file_handle.write(";")
+            counter += 1
             file_handle.close()
+
+        print("Retrieved %d %s for schema %s" % (counter, object_type, user))
 
     print()
     connection.close()
